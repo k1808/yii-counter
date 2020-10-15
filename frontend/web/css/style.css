@@ -1,0 +1,19 @@
+.site-login {
+    display: flex;
+    justify-content: center;
+}
+
+.site-login-wrap {
+    width: 550px;
+    text-align: center;
+}
+
+.site-login-block {
+    display: contents;
+}
+
+#login-form {
+    display: block;
+    margin: 0 auto;
+    width: 200px;
+}
