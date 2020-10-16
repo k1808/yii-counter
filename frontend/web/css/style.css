@@ -24,3 +24,8 @@
     justify-content: center;
     text-align: center;
 }
+
+.counter-item {
+    font-weight: 900;
+    font-size: 160px;
+}
