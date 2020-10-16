@@ -12,8 +12,15 @@
     display: contents;
 }
 
-#login-form {
+#login-form,
+#form-signup {
     display: block;
     margin: 0 auto;
     width: 200px;
+}
+
+.site-signup {
+    display: flex;
+    justify-content: center;
+    text-align: center;
 }

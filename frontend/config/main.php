@@ -40,7 +40,7 @@ return [
         'enablePrettyUrl' => true,
         'showScriptName' => false,
         'rules' => [
-            '/'=>'site/login',
+            '/'=>'site/index',
             '<_a:login|logout>'=>'site/<_a>',
             '<_c:[\w\-]+>' => '<_c>/index',
             '<_c:[\w\-]+>/<id:\d+>' => '<_c>/view',

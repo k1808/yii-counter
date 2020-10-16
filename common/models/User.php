@@ -14,10 +14,10 @@ use yii\web\IdentityInterface;
  * @property string $username
  * @property string $password_hash
  * @property string $password_reset_token
- * @property string $verification_token
- * @property string $email
  * @property string $auth_key
  * @property integer $status
+ * @property integer $birth_date
+ * @property integer $counter
  * @property integer $created_at
  * @property integer $updated_at
  * @property string $password write-only password
@@ -54,6 +54,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         return [
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
+            [['birth_date', 'counter'], 'integer'],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
         ];
     }
@@ -103,18 +104,6 @@ class User extends ActiveRecord implements IdentityInterface
         ]);
     }
 
-    /**
-     * Finds user by verification email token
-     *
-     * @param string $token verify email token
-     * @return static|null
-     */
-    public static function findByVerificationToken($token) {
-        return static::findOne([
-            'verification_token' => $token,
-            'status' => self::STATUS_INACTIVE
-        ]);
-    }
 
     /**
      * Finds out if password reset token is valid
@@ -194,13 +183,25 @@ class User extends ActiveRecord implements IdentityInterface
         $this->password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
     }
 
-    /**
-     * Generates new token for email verification
-     */
-    public function generateEmailVerificationToken()
+    public static function create($login, $password, $birth_date)
     {
-        $this->verification_token = Yii::$app->security->generateRandomString() . '_' . time();
+        $user = new static();
+        $user->username = $login;
+        $user->setPassword($password);
+        $user->generateAuthKey();
+        $user->birth_date = strtotime($birth_date);
+        return $user;
     }
+
+    public static function getBirthYear($birth_date)
+    {
+        $date = time();
+        if($date>strtotime($birth_date)){
+            $res = floor(($date - strtotime($birth_date))/(60*60*24*365));
+        }
+        return $res;
+    }
+
 
     /**
      * Removes password reset token

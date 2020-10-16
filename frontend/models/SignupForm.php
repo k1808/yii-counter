@@ -11,8 +11,8 @@ use common\models\User;
 class SignupForm extends Model
 {
     public $username;
-    public $email;
     public $password;
+    public $birth_date;
 
 
     /**
@@ -26,11 +26,8 @@ class SignupForm extends Model
             ['username', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This username has already been taken.'],
             ['username', 'string', 'min' => 2, 'max' => 255],
 
-            ['email', 'trim'],
-            ['email', 'required'],
-            ['email', 'email'],
-            ['email', 'string', 'max' => 255],
-            ['email', 'unique', 'targetClass' => '\common\models\User', 'message' => 'This email address has already been taken.'],
+            ['birth_date', 'string'],
+            ['birth_date', 'required'],
 
             ['password', 'required'],
             ['password', 'string', 'min' => Yii::$app->params['user.passwordMinLength']],
@@ -47,33 +44,19 @@ class SignupForm extends Model
         if (!$this->validate()) {
             return null;
         }
-        
-        $user = new User();
-        $user->username = $this->username;
-        $user->email = $this->email;
-        $user->setPassword($this->password);
-        $user->generateAuthKey();
-        $user->generateEmailVerificationToken();
-        return $user->save() && $this->sendEmail($user);
+
+        if(User::getBirthYear($this->birth_date) < 18){
+            Yii::$app->session->setFlash('danger', 'Too young!');
+            return -1;
+        }  elseif (User::getBirthYear($this->birth_date) > 150) {
+            Yii::$app->session->setFlash('danger', 'Too old!');
+            return -1;
+        }
+            $user = User::create($this->username, $this->password, $this->birth_date);
+            $user->save();
+            return 1;
+
 
     }
 
-    /**
-     * Sends confirmation email to user
-     * @param User $user user model to with email should be send
-     * @return bool whether the email was sent
-     */
-    protected function sendEmail($user)
-    {
-        return Yii::$app
-            ->mailer
-            ->compose(
-                ['html' => 'emailVerify-html', 'text' => 'emailVerify-text'],
-                ['user' => $user]
-            )
-            ->setFrom([Yii::$app->params['supportEmail'] => Yii::$app->name . ' robot'])
-            ->setTo($this->email)
-            ->setSubject('Account registration at ' . Yii::$app->name)
-            ->send();
-    }
 }
